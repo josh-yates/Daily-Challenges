@@ -6,7 +6,6 @@
 	-If it is divisible by 3, do that. Else, add or subtract 1 to get a number divisble by 3
 	-Output current number and whether 1, 0 or -1 is added before division by 3
 	-Continue until 1 is reached
-
 PLAN
 -Use recursive function to carry out function
 */
