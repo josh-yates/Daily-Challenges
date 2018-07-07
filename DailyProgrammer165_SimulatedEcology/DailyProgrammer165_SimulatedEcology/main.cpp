@@ -28,3 +28,8 @@ PLAN
 	-Use vectors of smart pointers to keep track of objects
 	-Use bitmap method to display the map and have text boxes for keeping track of time and resources
 */
+
+#include <Windows.h>
+#include <vector>
+#include <stdexcept>
+#include <memory>
