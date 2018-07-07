@@ -33,3 +33,54 @@ PLAN
 #include <vector>
 #include <stdexcept>
 #include <memory>
+#include "ForestClasses.h"
+
+const int WorldSize{ 50 };
+HWND hParentWindow;
+
+//Function to convert string to wstring
+std::wstring StringToWstring(const std::string StringIn) {
+	std::wstring Converted(StringIn.length(), L' ');
+	std::copy(StringIn.begin(), StringIn.end(), Converted.begin());
+	return Converted;
+}
+
+LRESULT CALLBACK ParentWindowProcedure(HWND hWnd, UINT message, WPARAM wp, LPARAM lp);
+
+int CALLBACK WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow) {
+	try {
+		//Generate clock and map
+		GameClock WorldClock;
+		Forest::ForestMap WorldMap(WorldSize, WorldClock);
+
+		//Register window
+		WNDCLASSW ParentWindowClass{ 0 };
+		ParentWindowClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
+		ParentWindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		ParentWindowClass.hInstance = hInst;
+		ParentWindowClass.lpszClassName = L"ParentWindowClass";
+		ParentWindowClass.lpfnWndProc = ParentWindowProcedure;
+
+		if (!RegisterClassW(&ParentWindowClass)) {
+			throw std::invalid_argument("Unable to register parent window class");
+		}
+
+		//Resize window around client area and draw window below:
+		//Display window
+		hParentWindow = CreateWindowW(
+			L"ParentWindowClass",		
+			L"Pathfinder",				
+			WS_SYSMENU | WS_VISIBLE,	
+			100, 100,					
+			100, 100,
+			NULL, NULL, NULL, NULL);
+	}
+	//catch errors and put in message box
+	catch (std::invalid_argument& inval_arg) {
+		MessageBox(nullptr, StringToWstring(inval_arg.what()).c_str(), L"Programming error", MB_ICONERROR);
+	}
+	catch (...) {
+		MessageBox(nullptr, L"Unknown error", L"Programming error", MB_ICONERROR);
+	}
+	return 0;
+}
