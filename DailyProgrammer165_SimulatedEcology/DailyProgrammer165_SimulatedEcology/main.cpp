@@ -26,7 +26,7 @@ PLAN
 	-Use OOP to create classes for map (2d array), bears, trees etc.
 	-Have map as local reference and time as local reference
 	-Use vectors of smart pointers to keep track of objects
-	-Use bitmap method to display the map and have text boxes for keeping track of time and resources
+	-Updated display method: use direct2D from previous game graphics engine to display shapes in a grid
 */
 
 #include <Windows.h>
@@ -34,9 +34,12 @@ PLAN
 #include <stdexcept>
 #include <memory>
 #include "ForestClasses.h"
+#include "Graphics.h"
 
 const int WorldSize{ 50 };
+const int ParentClientSize{ WorldSize * 15 };
 HWND hParentWindow;
+GraphicsEngine* Graphics;
 
 //Function to convert string to wstring
 std::wstring StringToWstring(const std::string StringIn) {
@@ -65,15 +68,38 @@ int CALLBACK WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmds
 			throw std::invalid_argument("Unable to register parent window class");
 		}
 
+		RECT ParentClientRect = { 0,0,ParentClientSize,ParentClientSize };
+		AdjustWindowRect(&ParentClientRect, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, false);
+
 		//Resize window around client area and draw window below:
 		//Display window
 		hParentWindow = CreateWindowW(
 			L"ParentWindowClass",		
-			L"Pathfinder",				
-			WS_SYSMENU | WS_VISIBLE,	
+			L"Forest Simulation",				
+			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
 			100, 100,					
-			100, 100,
-			NULL, NULL, NULL, NULL);
+			ParentClientRect.right-ParentClientRect.left, 
+			ParentClientRect.bottom-ParentClientRect.top,
+			nullptr, nullptr, nullptr, nullptr);
+
+		//Initialise graphics engine
+		Graphics = new GraphicsEngine();
+		if (!Graphics->Init(hParentWindow)) {
+			delete Graphics;
+			throw std::invalid_argument("Unable to initialise graphics");
+		}
+
+		//Message loop
+		MSG Message{ 0 };
+
+		while (GetMessage(&Message, NULL, NULL, NULL)) {
+			TranslateMessage(&Message);
+			DispatchMessage(&Message);	
+		}
+
+		//Clean up memory
+		delete Graphics;
+
 	}
 	//catch errors and put in message box
 	catch (std::invalid_argument& inval_arg) {
@@ -83,4 +109,27 @@ int CALLBACK WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmds
 		MessageBox(nullptr, L"Unknown error", L"Programming error", MB_ICONERROR);
 	}
 	return 0;
+}
+
+LRESULT CALLBACK ParentWindowProcedure(HWND hWnd, UINT message, WPARAM wp, LPARAM lp) {
+	switch (message) {
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+		break;
+	//TODO move drawing to while message loop
+	case WM_PAINT:
+		Graphics->BeginDraw();
+		Graphics->ClearScreen(0.2, 0.9, 0.2);
+		Graphics->EndDraw();
+		PAINTSTRUCT ps;
+		HDC hdc;
+		hdc = BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
+		break;
+		return 0;
+	default:
+		return DefWindowProcW(hWnd, message, wp, lp);
+		break;
+	}
 }
