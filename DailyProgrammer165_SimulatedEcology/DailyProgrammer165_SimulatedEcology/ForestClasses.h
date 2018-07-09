@@ -2,6 +2,12 @@
 #define FORESTCLASSES_H
 
 #include <vector>
+#include <memory>
+
+namespace Forest {
+	class ForestMap;
+	class ForestEntity;
+}
 
 class GameClock {
 private:
@@ -29,7 +35,7 @@ namespace Forest {
 	};
 
 	class ForestEntity {
-	private:
+	protected:
 		int xPos, yPos;
 		ForestMap* ParentMapPtr;
 		GameClock* ClockPtr;
@@ -37,6 +43,14 @@ namespace Forest {
 		ForestEntity(const int xPosIn, const int yPosIn, ForestMap& ParentMapIn, GameClock& ClockIn);
 		~ForestEntity();
 		virtual void DoAction() = 0;
+	};
+
+	class LumberJack :public ForestEntity {
+	private:
+		int* LumberCount;
+	public:
+		LumberJack(int& LumberCountIn, const int xPosIn, const int yPosIn, ForestMap& ParentMapIn, GameClock& ClockIn);
+		~LumberJack();
 	};
 }
 

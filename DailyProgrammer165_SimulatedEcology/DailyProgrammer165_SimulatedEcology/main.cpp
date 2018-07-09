@@ -33,8 +33,11 @@ PLAN
 #include <vector>
 #include <stdexcept>
 #include <memory>
+#include <chrono>
 #include "ForestClasses.h"
 #include "Graphics.h"
+
+//TODO Use chrono for measuring time elapsed in "Game loop": inside loop, see if time elapsed is half a second (or whatever) and if so, update map and redraw
 
 const int WorldSize{ 50 };
 const int ParentClientSize{ WorldSize * 15 };

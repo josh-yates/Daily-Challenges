@@ -26,7 +26,9 @@ Forest::ForestMap::ForestMap(const int SideSize, GameClock& ClockIn) {
 	}
 }
 
-Forest::ForestMap::~ForestMap() {}
+Forest::ForestMap::~ForestMap() {
+	ClockPtr = nullptr;
+}
 
 int Forest::ForestMap::GetSideSize()const {
 	return MapArray.size();
@@ -56,6 +58,17 @@ Forest::ForestEntity::ForestEntity(const int xPosIn, const int yPosIn, ForestMap
 	yPos = yPosIn;
 }
 
-Forest::ForestEntity::~ForestEntity() {}
+Forest::ForestEntity::~ForestEntity() {
+	ParentMapPtr = nullptr;
+	ClockPtr = nullptr;
+}
 
 void Forest::ForestEntity::DoAction() {}
+
+Forest::LumberJack::LumberJack(int& LumberCountIn, const int xPosIn, const int yPosIn, ForestMap& ParentMapIn, GameClock& ClockIn) :ForestEntity(xPosIn, yPosIn, ParentMapIn, ClockIn) {
+	LumberCount = &LumberCountIn;
+}
+
+Forest::LumberJack::~LumberJack() {
+	LumberCount = nullptr;
+}
